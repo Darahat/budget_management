@@ -139,13 +139,6 @@ class BudgetCategoryNotifier
 
   Future<void> deleteCategory({required String id}) async {
     try {
-      final categories = state.valueOrNull ?? [];
-      final category = categories.firstWhere((c) => c.id == id);
-
-      if (category.isDefault) {
-        throw Exception('Cannot delete default categories');
-      }
-
       await deleteBudgetCategory(id: id);
       await loadCategories();
     } catch (e) {

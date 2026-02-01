@@ -170,7 +170,7 @@ class _BudgetCategoriesPageState extends ConsumerState<BudgetCategoriesPage> {
         title: const Text('Delete Category'),
         content: Text(
           'Are you sure you want to delete "${category.name}"?\n\n'
-          'Note: Budgets using this category will not be affected.',
+          'Note: Existing budgets using this category will not be affected.',
         ),
         actions: [
           TextButton(
@@ -252,91 +252,55 @@ class _BudgetCategoriesPageState extends ConsumerState<BudgetCategoriesPage> {
             );
           }
 
-          final defaultCategories = categories
-              .where((c) => c.isDefault)
-              .toList();
-          final customCategories = categories
-              .where((c) => !c.isDefault)
-              .toList();
-
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              if (defaultCategories.isNotEmpty) ...[
-                Text(
-                  'Default Categories',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
+              Text(
+                'Budget Categories',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
                 ),
-                const SizedBox(height: 8),
-                ...defaultCategories.map(
-                  (category) => Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.category,
-                          color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 8),
+              ...categories.map(
+                (category) => Card(
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: category.isDefault
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : Theme.of(context).colorScheme.secondaryContainer,
+                      child: Icon(
+                        category.isDefault ? Icons.category : Icons.star,
+                        color: category.isDefault
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                    title: Text(category.name),
+                    subtitle: Text(
+                      category.isDefault
+                          ? 'Default category'
+                          : 'Custom category',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _showEditCategoryDialog(category),
+                          tooltip: 'Edit category',
                         ),
-                      ),
-                      title: Text(category.name),
-                      subtitle: const Text('Default category'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () => _showEditCategoryDialog(category),
-                        tooltip: 'Edit category',
-                      ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _showDeleteConfirmation(category),
+                          tooltip: 'Delete category',
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-              ],
-              if (customCategories.isNotEmpty) ...[
-                Text(
-                  'Custom Categories',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...customCategories.map(
-                  (category) => Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.secondaryContainer,
-                        child: Icon(
-                          Icons.star,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      title: Text(category.name),
-                      subtitle: const Text('Custom category'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showEditCategoryDialog(category),
-                            tooltip: 'Edit category',
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _showDeleteConfirmation(category),
-                            tooltip: 'Delete category',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ],
           );
         },
